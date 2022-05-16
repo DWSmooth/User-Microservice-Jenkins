@@ -17,7 +17,7 @@ public class SendGridEmailService {
 
     public SendGridEmailService() {
         this.sendGrid = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-        this.fromAddress = new Email("SENDGRID_EMAIL");
+        this.fromAddress = new Email(System.getenv("SENDGRID_EMAIL"));
     }
 
     public Response sendMail(String email, String subject, Content content) throws IOException {
