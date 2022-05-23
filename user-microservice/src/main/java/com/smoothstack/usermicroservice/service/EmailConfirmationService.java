@@ -15,7 +15,7 @@ import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
 import com.smoothstack.usermicroservice.exceptions.*;
-import org.hibernate.cfg.NotYetImplementedException;
+import com.smoothstack.usermicroservice.service.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +52,7 @@ public class EmailConfirmationService {
     PasswordReqsService pwService;
 
     @Autowired
-    SendGridEmailService emailService;
+    MessagingService msgService;
 
     @Autowired
     public EmailConfirmationService(ConfigService config) {
@@ -73,19 +73,24 @@ public class EmailConfirmationService {
             CommunicationMethod cm = userInfo.getCommunicationType();
             String method = cm.getName();
 
+            String jwt = createConfirmEmailJwt(user.getId());
+            String link = confirmEmailLink(jwt);
+
             switch (method) {
                 case "sms":
-                    throw new NotYetImplementedException("SMS service is not implemented");
+                {
+                    String phone = userInfo.getPhoneNumber();
+
+                    // TODO: Write a better SMS body
+                    msgService.sendSMS(phone, link);
+                }
                 case "email":
                 {
-                    // Prepare data
                     String email = userInfo.getEmail();
-                    String jwt = createConfirmEmailJwt(user.getId());
-                    String link = confirmEmailLink(jwt);
                     String subject = "MEGA BYTES: Confirm Email Link";
 
-                    // Save/send data
-                    emailService.sendTextPlain(email, subject, link);
+                    // TODO: Write an actual HTML body
+                    msgService.sendEmail(email, subject, link);
                 }
                 default:
                     throw new NotSupportedException("Cannot use \"" + method + "\" as a communication type");
@@ -113,23 +118,29 @@ public class EmailConfirmationService {
             CommunicationMethod cm = userInfo.getCommunicationType();
             String method = cm.getName();
 
+            MessageType msgType = getMessageType("forgot-password");
+            String confirmation = randomService.generateAlphanumericString(32);
+            String jwt = createResetPasswordJwt(userId, confirmation);
+            String link = resetPasswordLink(jwt);
+            Message msg = createMsg(msgType, cm, confirmation);
+
             switch (method) {
                 case "sms":
-                    throw new NotYetImplementedException("SMS service is not implemented");
+                {
+                    String phone = userInfo.getPhoneNumber();
+                    msgRepo.save(msg);
+
+                    // TODO: Write a better SMS body
+                    msgService.sendSMS(phone, link);
+                }
                 case "email":
                 {
-                    // Prepare data
                     String email = userInfo.getEmail();
-                    MessageType msgType = getMessageType("forgot-password");
-                    String confirmation = randomService.generateAlphanumericString(32);
-                    String jwt = createResetPasswordJwt(userId, confirmation);
-                    String link = resetPasswordLink(jwt);
                     String subject = "MEGA BYTES: Reset Password Link";
-                    Message msg = createMsg(msgType, cm, confirmation);
-
-                    // Save/send data
                     msgRepo.save(msg);
-                    emailService.sendTextPlain(email, subject, link);
+
+                    // TODO: Write an actual HTML body
+                    msgService.sendEmail(email, subject, link);
                 }
                 default:
                     throw new NotSupportedException("Cannot use \"" + method + "\" as a communication type");
