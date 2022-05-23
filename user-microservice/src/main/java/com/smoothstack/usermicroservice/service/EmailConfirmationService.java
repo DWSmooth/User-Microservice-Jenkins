@@ -73,6 +73,7 @@ public class EmailConfirmationService {
             CommunicationMethod cm = userInfo.getCommunicationType();
             String method = cm.getName();
 
+            // Prepare message
             String jwt = createConfirmEmailJwt(user.getId());
             String link = confirmEmailLink(jwt);
 
@@ -83,6 +84,7 @@ public class EmailConfirmationService {
 
                     // TODO: Write a better SMS body
                     msgService.sendSMS(phone, link);
+                    break;
                 }
                 case "email":
                 {
@@ -91,6 +93,7 @@ public class EmailConfirmationService {
 
                     // TODO: Write an actual HTML body
                     msgService.sendEmail(email, subject, link);
+                    break;
                 }
                 default:
                     throw new NotSupportedException("Cannot use \"" + method + "\" as a communication type");
@@ -118,6 +121,7 @@ public class EmailConfirmationService {
             CommunicationMethod cm = userInfo.getCommunicationType();
             String method = cm.getName();
 
+            // Prepare message
             MessageType msgType = getMessageType("forgot-password");
             String confirmation = randomService.generateAlphanumericString(32);
             String jwt = createResetPasswordJwt(userId, confirmation);
@@ -132,6 +136,7 @@ public class EmailConfirmationService {
 
                     // TODO: Write a better SMS body
                     msgService.sendSMS(phone, link);
+                    break;
                 }
                 case "email":
                 {
@@ -141,6 +146,7 @@ public class EmailConfirmationService {
 
                     // TODO: Write an actual HTML body
                     msgService.sendEmail(email, subject, link);
+                    break;
                 }
                 default:
                     throw new NotSupportedException("Cannot use \"" + method + "\" as a communication type");

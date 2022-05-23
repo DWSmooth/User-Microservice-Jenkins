@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class ConfigService {
 
     public static final String urlAddress = "URL_ADDRESS";
-    public static final String urlAddressDefault = "http://localhost:8080/";
+    public static final String urlAddressDefault = "http://localhost:8080";
 
     public static final String jwtSecret = "JWT_SECRET";
     public static final String jwtSecretDefault = "testSecret123";
@@ -76,15 +76,17 @@ public class ConfigService {
 
     // Provides a fail-safe means of querying environment variables.
     public String getenv(String name, String defaultValue) {
-        String result;
+        String result = null;
         try {
             result = System.getenv(name);
         } catch (NullPointerException | SecurityException e) {
-            result = defaultValue;
             String msg = String.format("Environment variable \"%s\" not found. "
-            + "Value will be \"%s\".", name, result);
+            + "Value will be \"%s\".", name, defaultValue);
             System.err.println(msg);
         }
+
+        if (result == null)
+            result = defaultValue;
 
         return result;
     }
