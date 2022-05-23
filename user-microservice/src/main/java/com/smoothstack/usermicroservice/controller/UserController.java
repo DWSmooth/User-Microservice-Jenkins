@@ -17,8 +17,8 @@ public class UserController {
     @Autowired
     EmailConfirmationService emailConfirmationService;
 
-    @PostMapping(value = "ufd/user-service/sendConfirmEmail")
-    public ResponseEntity<String> sendConfirmEmail(@RequestBody SendConfirmEmailBody body) {
+    @PostMapping(value = "ufd/user-service/confirmationMessage")
+    public ResponseEntity<String> confirmationMessage(@RequestBody SendConfirmEmailBody body) {
         try {
             emailConfirmationService.sendConfirmEmail(body);
             return ResponseEntity.status(HttpStatus.OK).body("Sent successfully");
@@ -29,8 +29,8 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "ufd/user-service/sendResetPassword")
-    public ResponseEntity<String> sendResetPassword(@RequestBody SendResetPasswordBody body) {
+    @PostMapping(value = "ufd/user-service/resetPasswordMessage")
+    public ResponseEntity<String> resetPasswordMessage(@RequestBody SendResetPasswordBody body) {
         try {
             emailConfirmationService.sendResetPassword(body);
             return ResponseEntity.status(HttpStatus.OK).body("Sent successfully");
@@ -39,8 +39,8 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "ufd/user-service/confirmEmail")
-    public ResponseEntity<String> confirmEmail(@RequestParam(name = "token") String token) {
+    @PutMapping(value = "ufd/user-service/confirmation")
+    public ResponseEntity<String> confirmation(@RequestParam(name = "token") String token) {
         try {
             emailConfirmationService.confirmEmail(token);
             return ResponseEntity.status(HttpStatus.OK).body("Email confirmed");

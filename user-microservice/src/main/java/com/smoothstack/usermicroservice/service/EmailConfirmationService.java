@@ -25,7 +25,7 @@ import javax.transaction.NotSupportedException;
 public class EmailConfirmationService {
     private static final Integer confirmEmailExpiryHours = 24 * 7;
     private static final Integer resetPasswordExpiryHours = 24 * 1;
-    private static final String confirmEmailPath = "/ufd/user-service/confirmEmail";
+    private static final String confirmEmailPath = "/ufd/user-service/confirmation";
     private static final String resetPasswordPath = "/ufd/user-service/resetPassword";
 
     private String url;
