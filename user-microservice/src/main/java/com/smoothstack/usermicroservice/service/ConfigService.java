@@ -1,6 +1,7 @@
 package com.smoothstack.usermicroservice.service;
 
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.error.MissingEnvironmentVariableException;
 
 @Service
 public class ConfigService {
@@ -9,7 +10,6 @@ public class ConfigService {
     public static final String urlAddressDefault = "http://localhost:8080";
 
     public static final String jwtSecret = "JWT_SECRET";
-    public static final String jwtSecretDefault = "testSecret123";
 
     public static final String sendGridApiKey = "SENDGRID_API_KEY";
     public static final String sendGridEmail = "SENDGRID_EMAIL";
@@ -31,7 +31,7 @@ public class ConfigService {
     }
 
     public String getJwtSecret() {
-        return getenv(jwtSecret, jwtSecretDefault);
+        return getenvRequired(jwtSecret);
     }
 
     public String getSendGridApiKey() {
@@ -89,5 +89,14 @@ public class ConfigService {
             result = defaultValue;
 
         return result;
+    }
+
+    // Emits an error if the environment variable isn't specified.
+    public String getenvRequired(String name) {
+        String value = getenv(name, null);
+        if (value == null)
+            throw new MissingEnvironmentVariableException(name);
+
+        return value;
     }
 }
