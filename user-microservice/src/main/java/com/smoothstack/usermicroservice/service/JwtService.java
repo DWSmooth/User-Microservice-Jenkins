@@ -20,7 +20,7 @@ public class JwtService {
     private JWTVerifier verifier;
 
     public JwtService() {
-        this.jwtSecret = System.getenv("JWT_SECRET");
+        this.jwtSecret = "secret"; //System.getenv("JWT_SECRET");
         this.algorithm = Algorithm.HMAC256(this.jwtSecret);
         this.verifier = JWT.require(this.algorithm).build();
     }

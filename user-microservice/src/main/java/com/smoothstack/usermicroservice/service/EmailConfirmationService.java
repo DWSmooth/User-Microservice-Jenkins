@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.smoothstack.common.models.*;
@@ -89,16 +90,9 @@ public class EmailConfirmationService {
             // Grab user information
             User user = userInfo.getUser();
             Integer userId = user.getId();
-            List<CommunicationMethod> commsMethods = user.getCommunicationMethods();
-
-            if (commsMethods.isEmpty()) {
-                //TODO: actually throw an error here
-                System.err.println("A User has no Communication Methods!");
-                return;
-            }
+            CommunicationMethod commsMethod = user.getUserInformation().getCommunicationType();
 
             // TODO: Rewrite once communication methods are improved.
-            CommunicationMethod commsMethod = commsMethods.get(0);
             String email = userInfo.getEmail();
 
             // Grab message type
