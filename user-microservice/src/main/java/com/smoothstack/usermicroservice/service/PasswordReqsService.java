@@ -8,6 +8,9 @@ public class PasswordReqsService {
     private static Integer MAX_PASSWORD_LENGTH = 256;
 
     public boolean verifyPassword(String password) {
+        if (password == null)
+            return false;
+
         if (password.length() < MIN_PASSWORD_LENGTH)
             return false;
 

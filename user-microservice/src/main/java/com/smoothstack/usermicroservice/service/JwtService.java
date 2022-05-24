@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.smoothstack.usermicroservice.data.jwt.ConfirmEmailToken;
 import com.smoothstack.usermicroservice.data.jwt.ResetPasswordToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,8 +20,9 @@ public class JwtService {
 
     private JWTVerifier verifier;
 
-    public JwtService() {
-        this.jwtSecret = System.getenv("JWT_SECRET");
+    @Autowired
+    public JwtService(ConfigService config) {
+        this.jwtSecret = config.getJwtSecret();
         this.algorithm = Algorithm.HMAC256(this.jwtSecret);
         this.verifier = JWT.require(this.algorithm).build();
     }
