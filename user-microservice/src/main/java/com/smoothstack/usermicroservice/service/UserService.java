@@ -3,16 +3,21 @@ package com.smoothstack.usermicroservice.service;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.models.UserInformation;
 import com.smoothstack.common.repositories.UserRepository;
+import com.smoothstack.common.services.CommonLibraryTestingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    CommonLibraryTestingService commonLibraryTestingService;
 
     /**
      * Returns a boolean value based on whether there is already a user under a given username
@@ -80,5 +85,44 @@ public class UserService {
     @Transactional
     public void deleteUser(Integer userid) {
         userRepository.deleteById(userid);
+    }
+
+    @Transactional
+    public User getUserByUserName(String username) {
+        Optional<User> foundUser = userRepository.findTopByUserName(username);
+
+        if (foundUser.isPresent())
+            return foundUser.get();
+        else
+            return null;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public void addTestData() {
+        commonLibraryTestingService.createTestData();
+    }
+
+    /**
+     * Returns a login pojo so the authentication microservice can authenticate a user
+     *
+     * @param username
+     * @return
+     */
+    public User getLoginInfo(String username) {
+        Optional<User> foundUser = userRepository.findTopByUserName(username);
+
+        if (foundUser.isPresent()) {
+            User user = foundUser.get();
+
+            return User.builder()
+                    .userName(user.getUserName())
+                    .password(user.getPassword())
+                    .build();
+        }
+
+        return null;
     }
 }

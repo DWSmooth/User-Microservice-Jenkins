@@ -1,6 +1,7 @@
 package com.smoothstack.usermicroservice.controller;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.smoothstack.common.models.User;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class UserController {
@@ -29,7 +32,7 @@ public class UserController {
      * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
      */
     @PostMapping(value = "create-user")
-    public ResponseEntity createUser(@RequestParam() User user) {
+    public ResponseEntity createUser(@RequestBody User user) {
         if (user == null)
             return  ResponseEntity.badRequest().body("Could not resolve user");
 
@@ -67,6 +70,27 @@ public class UserController {
         userService.deleteUser(user.getId());
 
         return ResponseEntity.accepted().body(user.getId());
+    }
+
+    @GetMapping("users")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PostMapping("test-data")
+    public ResponseEntity addTestData() {
+        userService.addTestData();
+        return ResponseEntity.accepted().build();
+    }
+
+    @GetMapping("user/{username}")
+    public User getUserByUserName(@PathVariable(name = "username") String username) {
+        return userService.getUserByUserName(username);
+    }
+
+    @GetMapping("login/{username}")
+    public User getUserLoginInfo(@PathVariable(name = "username") String username) {
+        return userService.getLoginInfo(username);
     }
 
     @PostMapping(value = "ufd/user-service/confirmationMessage")
