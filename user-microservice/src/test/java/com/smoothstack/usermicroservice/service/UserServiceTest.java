@@ -1,18 +1,14 @@
 package com.smoothstack.usermicroservice.service;
 
 import com.smoothstack.common.models.User;
-import com.smoothstack.common.repositories.UserInformationRepository;
 import com.smoothstack.common.repositories.UserRepository;
-import com.smoothstack.common.repositories.UserRoleRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
-import org.junit.jupiter.api.BeforeAll;
+import com.smoothstack.usermicroservice.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import javax.transaction.Transactional;
-import java.util.List;
+import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -33,10 +29,10 @@ public class UserServiceTest {
 
     @Test
     void userNameExistsTest() {
-        assert(userService.userNameExists("testAdmin"));
-        assert(userService.userNameExists("testDriver"));
-        assert(!userService.userNameExists("non-existentUsername"));
-        assert(!userService.userNameExists(null));
+        assert(userService.usernameExists("testAdmin"));
+        assert(userService.usernameExists("testDriver"));
+        assert(!userService.usernameExists("non-existentUsername"));
+        assert(!userService.usernameExists(null));
     }
 
     @Test
@@ -51,14 +47,84 @@ public class UserServiceTest {
     }
 
     @Test
+    void getUserByUsernameTest() {
+        User test = null;
+
+        try { test = userService.getUserByUsername("testAdmin"); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test != null); }
+
+        test = null;
+
+        try { test = userService.getUserByUsername("non-existent"); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test == null); }
+
+        test = null;
+
+        try { test = userService.getUserByUsername(null); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test == null); }
+    }
+
+    @Test
+    void getUserByIdTest() {
+        User test = null;
+
+        try { test = userService.getUserById(1); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test != null); }
+
+        test = null;
+
+        try { test = userService.getUserById(0); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test == null); }
+
+        test = null;
+
+        try { test = userService.getUserById(null); }
+        catch (UserNotFoundException e) {}
+        finally { assert(test == null); }
+    }
+
+    @Test
+    @DirtiesContext
     void createUserTest() {
         User toAdd = new User();
         toAdd.setUserName("newTestUser");
         toAdd.setPassword("testPassword");
+        Integer newUserId = null;
 
-        Integer newUserId = userService.createUser(toAdd);
+        try {
+            newUserId = userService.createUser(toAdd);
+        } catch (Exception e) {}
 
-        assert(userService.userNameExists("newTestUser"));
+        assert(userService.usernameExists("newTestUser"));
         assert(userService.userIdExists(newUserId));
+    }
+
+    @Test
+    @DirtiesContext
+    void updateUserTest() {
+        User user = null;
+
+        try {
+            user = userService.getUserByUsername("testAdmin");
+        } catch (Exception e) {}
+
+        assert(user != null);
+
+        User updates = User.builder()
+                .id(user.getId())
+                .userName("differentUsername")
+                .password("differentPassword")
+                .build();
+
+        try {
+            userService.updateUser(updates);
+        } catch (Exception e) {}
+
+        assert(userService.usernameExists("differentUsername"));
     }
 }
