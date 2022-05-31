@@ -16,7 +16,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.smoothstack")
 @ComponentScan("com.smoothstack")
 @EnableJpaRepositories("com.smoothstack")
-@EnableEurekaClient
 @SpringBootApplication()
 public class UserMicroserviceApplication {
 

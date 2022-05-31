@@ -1,6 +1,5 @@
 package com.smoothstack.usermicroservice.controller;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.smoothstack.common.models.User;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
@@ -14,7 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("user")
 public class UserController {
     
     @Autowired
@@ -23,50 +25,56 @@ public class UserController {
     UserService userService;
 
     /**
+     * Gets a list of all users and user ids in the database
+     */
+    @GetMapping("all")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("username/{username}")
+    public User getUserByUserName(@PathVariable(name = "username") String username) {
+        //TODO
+        return null;
+    }
+
+    @GetMapping("id/{userId}")
+    public User getUserByUserId(@PathVariable(name = "userId") Integer userId) {
+        //TODO
+        return null;
+    }
+
+    /**
      * The url used to create a user
      *
      * @param user
      * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
      */
     @PostMapping(value = "create-user")
-    public ResponseEntity createUser(@RequestParam() User user) {
-        if (user == null)
-            return  ResponseEntity.badRequest().body("Could not resolve user");
+    public ResponseEntity createUser(@RequestBody User user) {
+        try {
+            Integer createdId = userService.createUser(user);
+            return ResponseEntity.accepted().body("User created with id:" + createdId);
+        } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
-        if (user.getUserName() == null)
-            return ResponseEntity.badRequest().body("Username cannot be null");
+    }
 
-        if (user.getPassword() == null)
-            return ResponseEntity.badRequest().body("Password cannot be null");
-
-        if (userService.userNameExists(user.getUserName()))
-            return ResponseEntity.badRequest().body("Username is already in use");
-
-        if (!userService.validPassword(user.getPassword()))
-            return ResponseEntity.badRequest().body("Password does not fit criteria");
-
-        Integer createdId = userService.createUser(user);
-
-        if (createdId == null || createdId == 0)
-            return ResponseEntity.internalServerError().body("Failed to confirm creation of user");
-
-        return ResponseEntity.accepted().body(createdId);
+    @PostMapping(value="update-user")
+    public ResponseEntity updateUser(@RequestBody User user) {
+        try {
+            userService.updateUser(user);
+            return ResponseEntity.accepted().body("Updated user");
+        } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping(value="delete-user")
     public ResponseEntity deleteUser(@RequestBody User user) {
-        if (user == null)
-            return ResponseEntity.badRequest().body("Could not resolve user");
-
-        if (user.getId() == null)
-            return ResponseEntity.badRequest().body("User ID not provided");
-
-        if (!userService.userIdExists(user.getId()))
-            return ResponseEntity.badRequest().body("User not found under given ID");
-
-        userService.deleteUser(user.getId());
-
-        return ResponseEntity.accepted().body(user.getId());
+        //TODO
+        return null;
     }
 
     @PostMapping(value = "ufd/user-service/confirmationMessage")
