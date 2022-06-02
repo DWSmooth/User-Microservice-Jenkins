@@ -167,7 +167,8 @@ public class UserService {
 
             User.UserBuilder loginBuilder = User.builder()
                     .userName(user.getUserName())
-                    .password(user.getPassword());
+                    .password(user.getPassword())
+                    .enabled(user.isEnabled());
 
             if (!user.getUserRoles().isEmpty()) {
                 List<UserRole> roles = new ArrayList<>();
