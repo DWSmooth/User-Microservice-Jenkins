@@ -77,7 +77,7 @@ public class UserController {
         return null;
     }
 
-    @PostMapping(value = "ufd/user-service/confirmationMessage")
+    @PostMapping(value = "confirmationMessage")
     public ResponseEntity<String> confirmationMessage(@RequestBody SendConfirmEmailBody body) {
         try {
             emailConfirmationService.sendConfirmEmail(body);
@@ -89,7 +89,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "ufd/user-service/resetPasswordMessage")
+    @PostMapping(value = "resetPasswordMessage")
     public ResponseEntity<String> resetPasswordMessage(@RequestBody SendResetPasswordBody body) {
         try {
             emailConfirmationService.sendResetPassword(body);
@@ -99,7 +99,7 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "ufd/user-service/confirmation")
+    @PutMapping(value = "confirmation")
     public ResponseEntity<String> confirmation(@RequestParam(name = "token") String token) {
         try {
             emailConfirmationService.confirmEmail(token);
@@ -111,7 +111,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "ufd/user-service/resetPassword")
+    @PostMapping(value = "resetPassword")
     public ResponseEntity<String> resetPassword(
             @RequestParam(name = "token") String token,
             @RequestBody ResetPasswordBody body) {

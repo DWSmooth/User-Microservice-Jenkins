@@ -6,8 +6,8 @@ import org.yaml.snakeyaml.error.MissingEnvironmentVariableException;
 @Service
 public class ConfigService {
 
-    public static final String urlAddress = "URL_ADDRESS";
-    public static final String urlAddressDefault = "http://localhost:8080";
+    public static final String frontendAddress = "FRONTEND_ADDRESS";
+    public static final String frontendAddressDefault = "http://localhost:8080";
 
     public static final String jwtSecret = "JWT_SECRET";
 
@@ -26,8 +26,8 @@ public class ConfigService {
     public static final String awsSmsSenderId = "AWS_SMS_SENDER_ID";
     public static final String awsSmsSenderIdDefault = "MegaBytes";
 
-    public String getUrlAddress() {
-        return getenv(urlAddress, urlAddressDefault);
+    public String getFrontendAddress() {
+        return getenv(frontendAddress, frontendAddressDefault);
     }
 
     public String getJwtSecret() {

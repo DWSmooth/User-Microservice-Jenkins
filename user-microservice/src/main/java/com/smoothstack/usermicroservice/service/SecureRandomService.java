@@ -15,6 +15,7 @@ public class SecureRandomService {
         secureRandom = new SecureRandom();
     }
 
+    // Generates a random web-safe string useful for confirmation codes or generated secrets.
     public String generateAlphanumericString(int length) {
          return secureRandom
             .ints(length, 0, ALLOWED_CHARS.length())
