@@ -25,8 +25,8 @@ import javax.transaction.NotSupportedException;
 public class EmailConfirmationService {
     private static final Integer confirmEmailExpiryHours = 24 * 7;
     private static final Integer resetPasswordExpiryHours = 24 * 1;
-    private static final String confirmEmailPath = "/ufd/user-service/confirmation";
-    private static final String resetPasswordPath = "/ufd/user-service/resetPassword";
+    private static final String frontendConfirmationRoute = "/user/confirmation";
+    private static final String frontendResetPasswordRoute = "/user/resetPassword";
 
     private String url;
 
@@ -52,16 +52,19 @@ public class EmailConfirmationService {
     PasswordReqsService pwService;
 
     @Autowired
+    StringResourceService resourceService;
+
+    @Autowired
     MessagingService msgService;
 
     @Autowired
     public EmailConfirmationService(ConfigService config) {
-        this.url = config.getUrlAddress();
+        this.url = config.getFrontendAddress();
     }
 
-    public void sendConfirmEmail(SendConfirmEmailBody body)
+    public void sendConfirmEmail(SendConfirmEmailBody requestBody)
             throws UserNotFoundException, SendMsgFailureException {
-        Optional<User> userResult = userRepo.findById(body.getUserId());
+        Optional<User> userResult = userRepo.findById(requestBody.getUserId());
         if (userResult.isEmpty())
             throw new UserNotFoundException();
 
@@ -81,18 +84,16 @@ public class EmailConfirmationService {
                 case "sms":
                 {
                     String phone = userInfo.getPhoneNumber();
-
-                    // TODO: Write a better SMS body
-                    msgService.sendSMS(phone, link);
+                    String body = confirmationSmsText(link);
+                    msgService.sendSMS(phone, body);
                     break;
                 }
                 case "email":
                 {
                     String email = userInfo.getEmail();
-                    String subject = "MEGA BYTES: Confirm Email Link";
-
-                    // TODO: Write an actual HTML body
-                    msgService.sendEmail(email, subject, link);
+                    String subject = "Mega Bytes: Confirmation";
+                    String body = confirmationEmailText(link);
+                    msgService.sendEmail(email, subject, body);
                     break;
                 }
                 default:
@@ -105,8 +106,8 @@ public class EmailConfirmationService {
         }
     }
 
-    public void sendResetPassword(SendResetPasswordBody body) throws SendMsgFailureException {
-        Optional<UserInformation> userInfoResult = userInfoRepo.findTopByEmail(body.getEmail());
+    public void sendResetPassword(SendResetPasswordBody requestBody) throws SendMsgFailureException {
+        Optional<UserInformation> userInfoResult = userInfoRepo.findTopByEmail(requestBody.getEmail());
 
         // Must return 200 OK as security measure.
         if (userInfoResult.isEmpty())
@@ -133,19 +134,17 @@ public class EmailConfirmationService {
                 {
                     String phone = userInfo.getPhoneNumber();
                     msgRepo.save(msg);
-
-                    // TODO: Write a better SMS body
-                    msgService.sendSMS(phone, link);
+                    String body = resetPasswordSmsText(link);
+                    msgService.sendSMS(phone, body);
                     break;
                 }
                 case "email":
                 {
                     String email = userInfo.getEmail();
-                    String subject = "MEGA BYTES: Reset Password Link";
+                    String subject = "Mega Bytes: Reset Password";
                     msgRepo.save(msg);
-
-                    // TODO: Write an actual HTML body
-                    msgService.sendEmail(email, subject, link);
+                    String body = resetPasswordEmailText(link);
+                    msgService.sendEmail(email, subject, body);
                     break;
                 }
                 default:
@@ -231,12 +230,12 @@ public class EmailConfirmationService {
 
     // This link is served to the user and routes to a confirm email action.
     private String confirmEmailLink(String token) {
-        return this.url + confirmEmailPath + "?token=" + token;
+        return this.url + frontendConfirmationRoute + "?token=" + token;
     }
 
     // This link is served to the user and routes to a reset password action.
     private String resetPasswordLink(String token) {
-        return this.url + resetPasswordPath + "?token=" + token;
+        return this.url + frontendResetPasswordRoute + "?token=" + token;
     }
 
     private String createConfirmEmailJwt(Integer userId) {
@@ -259,6 +258,26 @@ public class EmailConfirmationService {
         msg.setIsActive(true);
         msg.setTimeSent(Instant.now());
         return msg;
+    }
+
+    private String confirmationEmailText(String link) {
+        String format = resourceService.get("com/smoothstack/usermicroservice/email/confirmation.html");
+        return format.replaceAll("TEMPLATE_CONFIRMATION_LINK", link);
+    }
+
+    private String confirmationSmsText(String link) {
+        String format = resourceService.get("com/smoothstack/usermicroservice/sms/confirmation.txt");
+        return format.replaceAll("TEMPLATE_CONFIRMATION_LINK", link);
+    }
+
+    private String resetPasswordEmailText(String link) {
+        String format = resourceService.get("com/smoothstack/usermicroservice/email/resetPassword.html");
+        return format.replaceAll("TEMPLATE_RESET_PASSWORD_LINK", link);
+    }
+
+    private String resetPasswordSmsText(String link) {
+        String format = resourceService.get("com/smoothstack/usermicroservice/sms/resetPassword.txt");
+        return format.replaceAll("TEMPLATE_RESET_PASSWORD_LINK", link);
     }
 
     // TODO: Should this be repository code?

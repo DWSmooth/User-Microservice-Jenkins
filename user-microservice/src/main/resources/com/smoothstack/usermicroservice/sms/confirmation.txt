@@ -1,0 +1,2 @@
+If you just signed up for a new Mega Bytes account, follow the link below to confirm your phone number. Otherwise, ignore this message:
+TEMPLATE_CONFIRMATION_LINK
