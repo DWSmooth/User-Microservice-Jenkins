@@ -1,6 +1,8 @@
 package com.smoothstack.usermicroservice.controller;
 
 import com.smoothstack.common.models.User;
+import com.smoothstack.common.models.UserInformation;
+import com.smoothstack.usermicroservice.data.UserInformationBuild;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
@@ -16,9 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("user")
 public class UserController {
-    
+
     @Autowired
     EmailConfirmationService emailConfirmationService;
     @Autowired
@@ -32,16 +35,51 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("allUserInformation")
+    public List<UserInformationBuild> getAllUserInformation() {
+        return userService.getAllUserInformation();
+    }
+
+//    try {
+//        userService.updateUser(user);
+//        return ResponseEntity.accepted().body("Updated user");
+//    } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
+//        return ResponseEntity.badRequest().body(e.getMessage());
+//    }
+
     @GetMapping("username/{username}")
     public User getUserByUserName(@PathVariable(name = "username") String username) {
-        //TODO
+        try {
+            User user = userService.getUserByUsername(username);
+            return user;
+        } catch(UserNotFoundException e ){
+            System.out.println("username: " + username);
+            return null;
+        }
+    }
+
+    @GetMapping("userInformation/id/{userId}")
+//    @GetMapping("userInformation/email/{userEmail}")
+    public UserInformation getUserInformationByUserId(@PathVariable(name="userId") Integer userId){
+//    public UserInformation getUserInformationByUserId(@PathVariable(name="userEmail") String userEmail){
+        try {
+            UserInformation userInformation = userService.getUserInformationById(userId);
+            return userInformation;
+        } catch(Exception e){
+            System.out.print("userId: " + userId);
+        }
         return null;
     }
 
     @GetMapping("id/{userId}")
     public User getUserByUserId(@PathVariable(name = "userId") Integer userId) {
-        //TODO
-        return null;
+        try {
+            User user = userService.getUserById(userId);
+            return user;
+        } catch(UserNotFoundException e ){
+            System.out.println("userId: " + userId);
+            return null;
+        }
     }
 
     /**
@@ -61,10 +99,30 @@ public class UserController {
 
     }
 
+    @PostMapping(value = "create-user-information")
+    public ResponseEntity createUserInformation(@RequestBody UserInformationBuild userInformationBuild) {
+        try {
+            Integer createdId = userService.createUserInformation(userInformationBuild);
+            return ResponseEntity.accepted().body("User created with id:" + createdId);
+        } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping(value="update-user")
     public ResponseEntity updateUser(@RequestBody User user) {
         try {
             userService.updateUser(user);
+            return ResponseEntity.accepted().body("Updated user");
+        } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(value = "update-user-information")
+    public ResponseEntity updateUserInformation(@RequestBody UserInformationBuild userInformationBuild) {
+        try {
+            userService.updateUserInformation(userInformationBuild);
             return ResponseEntity.accepted().body("Updated user");
         } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

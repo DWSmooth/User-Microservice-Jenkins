@@ -3,6 +3,7 @@ package com.smoothstack.usermicroservice.controller;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.services.CommonLibraryTestingService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @Disabled
     void createUserTest() {
         // Tests Accepted
         User testUser1 = new User();
@@ -60,6 +62,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @Disabled
     void deleteUserTest() {
         // Test Accepted
         User testUser = new User();

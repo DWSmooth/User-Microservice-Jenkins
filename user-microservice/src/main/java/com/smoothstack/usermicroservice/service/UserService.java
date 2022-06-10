@@ -2,7 +2,9 @@ package com.smoothstack.usermicroservice.service;
 
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.models.UserInformation;
+import com.smoothstack.usermicroservice.data.UserInformationBuild;
 import com.smoothstack.common.models.UserRole;
+import com.smoothstack.common.repositories.UserInformationRepository;
 import com.smoothstack.common.repositories.UserRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
 import com.smoothstack.usermicroservice.exceptions.InsufficientInformationException;
@@ -22,6 +24,9 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserInformationRepository userInformationRepository;
 
     /**
      * Returns a boolean depending on whether there is a user in the database with said username
@@ -107,6 +112,35 @@ public class UserService {
         return userRepository.save(user).getId();
     }
 
+    public Integer createUserInformation(UserInformationBuild userInformationBuild) throws InsufficientInformationException, UsernameTakenException, InsufficientPasswordException {
+        User newUser = new User();
+        UserInformation newUserInformation = new UserInformation();
+
+        System.out.println("user data: " + userInformationBuild.getUserName());
+        System.out.println("userInformation data: " + userInformationBuild.getFirst_name());
+
+        if (userInformationBuild == null) throw new InsufficientInformationException("User not provided");
+        if (userInformationBuild.getUserName() == null) throw new InsufficientInformationException("Username not provided");
+        if (userInformationBuild.getPassword() == null) throw new InsufficientInformationException("Password not provided");
+        if (usernameExists(userInformationBuild.getUserName())) throw new UsernameTakenException("Username is taken");
+        if (!validPassword(userInformationBuild.getPassword())) throw new InsufficientPasswordException("Password is insufficient");
+
+        newUserInformation.setUser(newUser);
+        newUser.setUserName(userInformationBuild.getUserName());
+        newUser.setPassword(userInformationBuild.getPassword());
+        newUserInformation.setFirstName(userInformationBuild.getFirst_name());
+        newUserInformation.setLastName(userInformationBuild.getLast_name());
+        newUserInformation.setEmail(userInformationBuild.getEmail());
+        newUserInformation.setPhoneNumber(userInformationBuild.getPhone_number());
+        newUserInformation.setBirthdate(userInformationBuild.getBirthdate());
+        newUserInformation.setVeteranStatus(userInformationBuild.getVeteran_status());
+        newUserInformation.setEmailConfirmed(userInformationBuild.getEmail_confirmed());
+        newUserInformation.setCommunicationType(null);
+        newUser.setUserInformation(newUserInformation);
+
+        return userRepository.save(newUser).getId();
+    }
+
     /**
      * updates a user based off of a provided userid
      *
@@ -128,6 +162,34 @@ public class UserService {
 
         userRepository.save(toUpdate);
     }
+
+
+    public void updateUserInformation(UserInformationBuild userInformationBuild) throws InsufficientInformationException, UsernameTakenException, InsufficientPasswordException, UserNotFoundException {
+        if (userInformationBuild == null) throw new InsufficientInformationException("User not provided");
+        if (userInformationBuild.getUsers_Id() == null) throw new InsufficientInformationException("User Id not provided");
+        User updateUser = getUserById(userInformationBuild.getUsers_Id());
+        UserInformation updateUserInformation = userInformationRepository.getById(userInformationBuild.getUsers_Id());
+
+        if (userInformationBuild.getUserName() == null) throw new InsufficientInformationException("Username not provided");
+        if (usernameExists(userInformationBuild.getUserName())) throw new UsernameTakenException("Username is taken");
+        if (!validPassword(userInformationBuild.getPassword())) throw new InsufficientPasswordException("Password is insufficient");
+
+        updateUserInformation.setUser(updateUser);
+        updateUser.setUserName(userInformationBuild.getUserName());
+        updateUserInformation.setFirstName(userInformationBuild.getFirst_name());
+        updateUserInformation.setLastName(userInformationBuild.getLast_name());
+        updateUserInformation.setEmail(userInformationBuild.getEmail());
+        updateUserInformation.setPhoneNumber(userInformationBuild.getPhone_number());
+        updateUserInformation.setBirthdate(userInformationBuild.getBirthdate());
+        updateUserInformation.setVeteranStatus(userInformationBuild.getVeteran_status());
+        updateUserInformation.setEmailConfirmed(userInformationBuild.getEmail_confirmed());
+        updateUser.setUserInformation(updateUserInformation);
+
+        updateUser.setUserInformation(updateUserInformation);
+        userRepository.save(updateUser);
+    }
+
+
 
 
     /**
@@ -152,6 +214,51 @@ public class UserService {
 
         return users;
     }
+
+    public List<UserInformationBuild> getAllUserInformation() {
+        List<UserInformationBuild> userInformationBuild = new ArrayList<>();
+
+        for (UserInformation dbUserInformation: userInformationRepository.findAll()) {
+                userInformationBuild.add(getUserInformationBuild(dbUserInformation.getId()));
+                System.out.println("userInformation: " + dbUserInformation.getId());
+        }
+
+        return userInformationBuild;
+    }
+
+
+    public UserInformation getUserInformationById(Integer userId) throws  UserNotFoundException {
+//    public UserInformation getUserInformationById(String userEmail){
+//        if (userIdExists(userId)) {
+//                return userInformationRepository.findById(userId).get();
+        Optional<UserInformation> userInformation = userInformationRepository.findById(userId);
+        UserInformation userInformation1 = userInformation.get();
+        return userInformation1;
+//        }
+//        throw new UserNotFoundException("No user with id:" + userId);
+    }
+
+
+    public UserInformationBuild getUserInformationBuild(Integer userId){
+        Optional<User> user = userRepository.findById(userId);
+        User user1 = user.get();
+        Optional<UserInformation> userInformation = userInformationRepository.findById(userId);
+        UserInformation userInformation1 = userInformation.get();
+        UserInformationBuild userInformationBuild = new UserInformationBuild();
+
+        userInformationBuild.setUsers_Id(user1.getId());
+        userInformationBuild.setUserName(user1.getUserName());
+        userInformationBuild.setFirst_name(userInformation1.getFirstName());
+        userInformationBuild.setLast_name(userInformation1.getLastName());
+        userInformationBuild.setEmail(userInformation1.getEmail());
+        userInformationBuild.setPhone_number(userInformation1.getPhoneNumber());
+        userInformationBuild.setBirthdate(userInformation1.getBirthdate());
+        userInformationBuild.setVeteran_status(userInformation1.getVeteranStatus());
+        userInformationBuild.setEmail_confirmed(userInformation1.getEmailConfirmed());
+        userInformationBuild.setAccount_active(userInformationBuild.getAccount_active());
+        return userInformationBuild;
+    }
+
 
     /**
      * Returns a login pojo so the authentication microservice can authenticate a user
