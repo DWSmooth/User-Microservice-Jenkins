@@ -112,6 +112,12 @@ public class UserService {
         return userRepository.save(user).getId();
     }
 
+    /**
+     * Adds a given user + userInformation to the database
+     *
+     * @param userInformationBuild the user to be added
+     * @return the id of the created user
+     */
     public Integer createUserInformation(UserInformationBuild userInformationBuild) throws InsufficientInformationException, UsernameTakenException, InsufficientPasswordException {
         User newUser = new User();
         UserInformation newUserInformation = new UserInformation();
@@ -124,6 +130,12 @@ public class UserService {
         if (userInformationBuild.getPassword() == null) throw new InsufficientInformationException("Password not provided");
         if (usernameExists(userInformationBuild.getUserName())) throw new UsernameTakenException("Username is taken");
         if (!validPassword(userInformationBuild.getPassword())) throw new InsufficientPasswordException("Password is insufficient");
+        if(userInformationBuild.getFirst_name() == null) throw new InsufficientInformationException("First Name not provided");
+        if(userInformationBuild.getLast_name() == null) throw new InsufficientInformationException("Last Name not provided");
+        if(userInformationBuild.getEmail() == null) throw new InsufficientInformationException("Email not provided");
+        if(userInformationBuild.getPhone_number() == null) throw new InsufficientInformationException("Phone number not provided");
+        if(userInformationBuild.getBirthdate() == null) throw new InsufficientInformationException("Birth date not provided");
+
 
         newUserInformation.setUser(newUser);
         newUser.setUserName(userInformationBuild.getUserName());
@@ -136,6 +148,7 @@ public class UserService {
         newUserInformation.setVeteranStatus(userInformationBuild.getVeteran_status());
         newUserInformation.setEmailConfirmed(userInformationBuild.getEmail_confirmed());
         newUserInformation.setCommunicationType(null);
+        newUserInformation.setAccount_active(userInformationBuild.getAccount_active());
         newUser.setUserInformation(newUserInformation);
 
         return userRepository.save(newUser).getId();
@@ -164,18 +177,18 @@ public class UserService {
     }
 
 
+    /**
+     * updates a user + userInformation based off of the userid provided in the userInformationBuild
+     *
+     * @param userInformationBuild a userInformationBuild containing the userid of the user to update and the other fields to update
+     */
     public void updateUserInformation(UserInformationBuild userInformationBuild) throws InsufficientInformationException, UsernameTakenException, InsufficientPasswordException, UserNotFoundException {
         if (userInformationBuild == null) throw new InsufficientInformationException("User not provided");
         if (userInformationBuild.getUsers_Id() == null) throw new InsufficientInformationException("User Id not provided");
         User updateUser = getUserById(userInformationBuild.getUsers_Id());
         UserInformation updateUserInformation = userInformationRepository.getById(userInformationBuild.getUsers_Id());
 
-        if (userInformationBuild.getUserName() == null) throw new InsufficientInformationException("Username not provided");
-        if (usernameExists(userInformationBuild.getUserName())) throw new UsernameTakenException("Username is taken");
-        if (!validPassword(userInformationBuild.getPassword())) throw new InsufficientPasswordException("Password is insufficient");
-
         updateUserInformation.setUser(updateUser);
-        updateUser.setUserName(userInformationBuild.getUserName());
         updateUserInformation.setFirstName(userInformationBuild.getFirst_name());
         updateUserInformation.setLastName(userInformationBuild.getLast_name());
         updateUserInformation.setEmail(userInformationBuild.getEmail());
@@ -183,12 +196,30 @@ public class UserService {
         updateUserInformation.setBirthdate(userInformationBuild.getBirthdate());
         updateUserInformation.setVeteranStatus(userInformationBuild.getVeteran_status());
         updateUserInformation.setEmailConfirmed(userInformationBuild.getEmail_confirmed());
-        updateUser.setUserInformation(updateUserInformation);
+        updateUserInformation.setAccount_active(userInformationBuild.getAccount_active());
 
         updateUser.setUserInformation(updateUserInformation);
         userRepository.save(updateUser);
     }
 
+    /**
+     * updates a user + userInformation based off of the userid provided in the userInformationBuild
+     *
+     * @param userInformationBuild a userInformationBuild containing the userid of the user to update and the other fields to update
+     */
+    public void setUserActiveInformation(UserInformationBuild userInformationBuild) throws InsufficientInformationException, UsernameTakenException, InsufficientPasswordException, UserNotFoundException {
+        if (userInformationBuild == null) throw new InsufficientInformationException("User not provided");
+        if (userInformationBuild.getUsers_Id() == null) throw new InsufficientInformationException("User Id not provided");
+        User updateUser = getUserById(userInformationBuild.getUsers_Id());
+        UserInformation updateUserInformation = userInformationRepository.getById(userInformationBuild.getUsers_Id());
+
+        updateUserInformation.setUser(updateUser);
+        updateUser.setEnabled(userInformationBuild.getEnabled());
+        updateUserInformation.setAccount_active(userInformationBuild.getAccount_active());
+
+        updateUser.setUserInformation(updateUserInformation);
+        userRepository.save(updateUser);
+    }
 
 
 
@@ -222,23 +253,28 @@ public class UserService {
                 userInformationBuild.add(getUserInformationBuild(dbUserInformation.getId()));
                 System.out.println("userInformation: " + dbUserInformation.getId());
         }
-
         return userInformationBuild;
     }
 
 
-    public UserInformation getUserInformationById(Integer userId) throws  UserNotFoundException {
-//    public UserInformation getUserInformationById(String userEmail){
-//        if (userIdExists(userId)) {
-//                return userInformationRepository.findById(userId).get();
-        Optional<UserInformation> userInformation = userInformationRepository.findById(userId);
-        UserInformation userInformation1 = userInformation.get();
-        return userInformation1;
-//        }
-//        throw new UserNotFoundException("No user with id:" + userId);
+    public UserInformationBuild getUserInformationById(Integer userId) throws  UserNotFoundException {
+        if (userIdExists(userId)) {
+//        Optional<UserInformation> userInformation = userInformationRepository.findById(userId);
+//        UserInformation userInformation1 = userInformation.get();
+            UserInformationBuild userInformationBuild1 = getUserInformationBuild(userId);
+        return userInformationBuild1;
+        }
+        throw new UserNotFoundException("No user with id:" + userId);
     }
 
 
+
+    /**
+     * build the userInformationBuild object for several functions listed above that work based off of userInformatoinBuild
+     *
+     * @param userId the user to be built
+     * @return the userInformationBuild object created
+     */
     public UserInformationBuild getUserInformationBuild(Integer userId){
         Optional<User> user = userRepository.findById(userId);
         User user1 = user.get();
@@ -248,6 +284,7 @@ public class UserService {
 
         userInformationBuild.setUsers_Id(user1.getId());
         userInformationBuild.setUserName(user1.getUserName());
+        userInformationBuild.setEnabled(user1.isEnabled());
         userInformationBuild.setFirst_name(userInformation1.getFirstName());
         userInformationBuild.setLast_name(userInformation1.getLastName());
         userInformationBuild.setEmail(userInformation1.getEmail());
@@ -255,7 +292,7 @@ public class UserService {
         userInformationBuild.setBirthdate(userInformation1.getBirthdate());
         userInformationBuild.setVeteran_status(userInformation1.getVeteranStatus());
         userInformationBuild.setEmail_confirmed(userInformation1.getEmailConfirmed());
-        userInformationBuild.setAccount_active(userInformationBuild.getAccount_active());
+        userInformationBuild.setAccount_active(userInformation1.getAccount_active());
         return userInformationBuild;
     }
 

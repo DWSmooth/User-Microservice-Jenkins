@@ -35,17 +35,16 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    /**
+     * Gets a list of all users + userInformation and user ids in the database
+     */
     @GetMapping("allUserInformation")
     public List<UserInformationBuild> getAllUserInformation() {
         return userService.getAllUserInformation();
     }
 
-//    try {
-//        userService.updateUser(user);
-//        return ResponseEntity.accepted().body("Updated user");
-//    } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
-//        return ResponseEntity.badRequest().body(e.getMessage());
-//    }
+
+
 
     @GetMapping("username/{username}")
     public User getUserByUserName(@PathVariable(name = "username") String username) {
@@ -58,13 +57,17 @@ public class UserController {
         }
     }
 
+    /**
+     * The url used to get a usersInformation
+     *
+     * @param userId
+     * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
+     */
     @GetMapping("userInformation/id/{userId}")
-//    @GetMapping("userInformation/email/{userEmail}")
-    public UserInformation getUserInformationByUserId(@PathVariable(name="userId") Integer userId){
-//    public UserInformation getUserInformationByUserId(@PathVariable(name="userEmail") String userEmail){
+    public UserInformationBuild getUserInformationByUserId(@PathVariable(name="userId") Integer userId){
         try {
-            UserInformation userInformation = userService.getUserInformationById(userId);
-            return userInformation;
+            UserInformationBuild userInformationBuild = userService.getUserInformationById(userId);
+            return userInformationBuild;
         } catch(Exception e){
             System.out.print("userId: " + userId);
         }
@@ -96,9 +99,14 @@ public class UserController {
         } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 
+    /**
+     * The url used to create a user + userInformation
+     *
+     * @param userInformationBuild
+     * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
+     */
     @PostMapping(value = "create-user-information")
     public ResponseEntity createUserInformation(@RequestBody UserInformationBuild userInformationBuild) {
         try {
@@ -108,6 +116,8 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 
     @PostMapping(value="update-user")
     public ResponseEntity updateUser(@RequestBody User user) {
@@ -119,11 +129,17 @@ public class UserController {
         }
     }
 
+    /**
+     * The url used to update a user + userInformation
+     *
+     * @param userInformationBuild
+     * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
+     */
     @PostMapping(value = "update-user-information")
     public ResponseEntity updateUserInformation(@RequestBody UserInformationBuild userInformationBuild) {
         try {
             userService.updateUserInformation(userInformationBuild);
-            return ResponseEntity.accepted().body("Updated user");
+            return ResponseEntity.accepted().body("Updated userInformation");
         } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -134,6 +150,23 @@ public class UserController {
         //TODO
         return null;
     }
+
+    /**
+     * The url used to update a user + userInformation
+     *
+     * @param userInformationBuild
+     * @return 201 on success, 400 on invalid parameters, or 500 in case of database error
+     */
+    @PostMapping(value = "set-user-active-information")
+    public ResponseEntity setUserActiveInformation(@RequestBody UserInformationBuild userInformationBuild) {
+        try {
+            userService.setUserActiveInformation(userInformationBuild);
+            return ResponseEntity.accepted().body("User account status updated.");
+        } catch (InsufficientInformationException | UsernameTakenException | InsufficientPasswordException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @PostMapping(value = "ufd/user-service/confirmationMessage")
     public ResponseEntity<String> confirmationMessage(@RequestBody SendConfirmEmailBody body) {

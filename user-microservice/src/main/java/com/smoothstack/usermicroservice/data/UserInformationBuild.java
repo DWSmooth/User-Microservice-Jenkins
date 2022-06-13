@@ -13,6 +13,7 @@ public class UserInformationBuild {
     private Integer users_Id;
     private String userName;
     private String password;
+    private Boolean enabled;
     private String first_name;
     private String last_name;
     private String email;
@@ -21,5 +22,5 @@ public class UserInformationBuild {
     private Boolean veteran_status;
     private Boolean email_confirmed;
     private Integer communication_type_id;
-    private Integer account_active;
+    private Boolean account_active;
 }
