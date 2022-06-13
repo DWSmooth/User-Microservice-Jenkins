@@ -3,7 +3,6 @@ package com.smoothstack.usermicroservice.controller;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.services.CommonLibraryTestingService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -5,7 +5,6 @@ import com.smoothstack.common.repositories.UserRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
 import com.smoothstack.usermicroservice.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +23,6 @@ public class UserServiceTest {
     UserRepository userRepository;
 
     @BeforeEach
-    @Disabled
     void setup() {
         commonLibraryTestingService.createTestData();
     }
