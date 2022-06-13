@@ -12,7 +12,6 @@ public class PasswordReqsServiceTest {
     PasswordReqsService pwService;
 
     @Test
-    @Disabled
     void invalidLength() {
         String nullString = null;
         String emptyString = "";
@@ -26,7 +25,6 @@ public class PasswordReqsServiceTest {
     }
 
     @Test
-    @Disabled
     void validLength() {
         String a = "goodPassword123!";
         String b = "betterPasswordsAreAlwaysBetter";

@@ -23,7 +23,6 @@ public class JwtService {
     @Autowired
     public JwtService(ConfigService config) {
         this.jwtSecret = config.getJwtSecret();
-        System.out.println("this.jwtSecret" +  this.jwtSecret);
         this.algorithm = Algorithm.HMAC256(this.jwtSecret);
         this.verifier = JWT.require(this.algorithm).build();
     }

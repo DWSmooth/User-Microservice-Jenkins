@@ -12,7 +12,6 @@ public class SecureRandomServiceTests {
     SecureRandomService randomService;
 
     @Test
-    @Disabled
     void generate() {
         for (int i = 1; i <= 256; i++) {
             String output = randomService.generateAlphanumericString(i);

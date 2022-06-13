@@ -24,7 +24,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @Disabled
     void createUserTest() {
         // Tests Accepted
         User testUser1 = new User();
@@ -62,7 +61,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @Disabled
     void deleteUserTest() {
         // Test Accepted
         User testUser = new User();

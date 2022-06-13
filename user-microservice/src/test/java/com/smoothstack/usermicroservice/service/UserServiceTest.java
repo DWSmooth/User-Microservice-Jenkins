@@ -30,7 +30,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     void userNameExistsTest() {
         assert(userService.usernameExists("testAdmin"));
         assert(userService.usernameExists("testDriver"));
@@ -39,7 +38,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     void userIdExistsTest() {
         Integer testId1 = userRepository.findTopByUserName("testAdmin").get().getId();
         Integer testId2 = userRepository.findTopByUserName("testDriver").get().getId();
@@ -51,7 +49,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     void getUserByUsernameTest() {
         User test = null;
 
@@ -73,7 +70,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     void getUserByIdTest() {
         User test = null;
 
@@ -95,7 +91,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     @DirtiesContext
     void createUserTest() {
         User toAdd = new User();
@@ -112,7 +107,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
     @DirtiesContext
     void updateUserTest() {
         User user = null;
