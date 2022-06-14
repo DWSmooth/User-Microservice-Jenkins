@@ -112,8 +112,6 @@ public class UserController {
         }
     }
 
-    }
-
     @PostMapping(value="update-user")
     public ResponseEntity updateUser(@RequestBody User user) {
         try {
