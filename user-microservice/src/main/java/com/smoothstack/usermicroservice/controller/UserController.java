@@ -1,12 +1,12 @@
 package com.smoothstack.usermicroservice.controller;
 
+import com.smoothstack.common.exceptions.*;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.models.UserInformation;
 import com.smoothstack.usermicroservice.data.UserInformationBuild;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
-import com.smoothstack.usermicroservice.exceptions.*;
 import com.smoothstack.usermicroservice.service.EmailConfirmationService;
 
 import com.smoothstack.usermicroservice.service.UserService;

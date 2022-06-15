@@ -4,7 +4,7 @@ import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
-import com.smoothstack.usermicroservice.exceptions.SendMsgFailureException;
+import com.smoothstack.common.exceptions.SendMsgFailureException;
 import com.smoothstack.usermicroservice.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 

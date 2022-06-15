@@ -1,6 +1,6 @@
 package com.smoothstack.usermicroservice.service.messaging;
 
-import com.smoothstack.usermicroservice.exceptions.SendMsgFailureException;
+import com.smoothstack.common.exceptions.SendMsgFailureException;
 import com.smoothstack.usermicroservice.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.smoothstack.common.exceptions.*;
 import com.smoothstack.common.models.*;
 import com.smoothstack.common.repositories.*;
 
@@ -14,7 +15,6 @@ import com.smoothstack.usermicroservice.data.jwt.ResetPasswordToken;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
-import com.smoothstack.usermicroservice.exceptions.*;
 import com.smoothstack.usermicroservice.service.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
