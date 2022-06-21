@@ -1,9 +1,9 @@
 package com.smoothstack.usermicroservice.service;
 
+import com.smoothstack.common.exceptions.UserNotFoundException;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.repositories.UserRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
-import com.smoothstack.usermicroservice.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

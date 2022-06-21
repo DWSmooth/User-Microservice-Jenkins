@@ -1,5 +1,9 @@
 package com.smoothstack.usermicroservice.service;
 
+import com.smoothstack.common.exceptions.InsufficientInformationException;
+import com.smoothstack.common.exceptions.InsufficientPasswordException;
+import com.smoothstack.common.exceptions.UserNotFoundException;
+import com.smoothstack.common.exceptions.UsernameTakenException;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.models.UserInformation;
 import com.smoothstack.usermicroservice.data.UserInformationBuild;
@@ -7,10 +11,6 @@ import com.smoothstack.common.models.UserRole;
 import com.smoothstack.common.repositories.UserInformationRepository;
 import com.smoothstack.common.repositories.UserRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
-import com.smoothstack.usermicroservice.exceptions.InsufficientInformationException;
-import com.smoothstack.usermicroservice.exceptions.InsufficientPasswordException;
-import com.smoothstack.usermicroservice.exceptions.UserNotFoundException;
-import com.smoothstack.usermicroservice.exceptions.UsernameTakenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
