@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.smoothstack")
 @ComponentScan("com.smoothstack")
 @EnableJpaRepositories("com.smoothstack")
-@SpringBootApplication()
+@SpringBootApplication
 public class UserMicroserviceApplication {
 
 	public static void main(String[] args) {
