@@ -2,12 +2,11 @@ package com.smoothstack.usermicroservice.controller;
 
 import com.smoothstack.common.exceptions.*;
 import com.smoothstack.common.models.User;
-import com.smoothstack.common.models.UserInformation;
 import com.smoothstack.usermicroservice.data.UserInformationBuild;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
-import com.smoothstack.usermicroservice.service.EmailConfirmationService;
+import com.smoothstack.usermicroservice.service.ConfirmationService;
 
 import com.smoothstack.usermicroservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import java.util.List;
 public class UserController {
     
     @Autowired
-    EmailConfirmationService emailConfirmationService;
+    ConfirmationService confirmationService;
     @Autowired
     UserService userService;
 
@@ -164,7 +163,7 @@ public class UserController {
     @PostMapping(value = "confirmationMessage")
     public ResponseEntity<String> confirmationMessage(@RequestBody SendConfirmEmailBody body) {
         try {
-            emailConfirmationService.sendConfirmEmail(body);
+            confirmationService.sendConfirmEmail(body);
             return ResponseEntity.status(HttpStatus.OK).body("Sent successfully");
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -176,7 +175,7 @@ public class UserController {
     @PostMapping(value = "resetPasswordMessage")
     public ResponseEntity<String> resetPasswordMessage(@RequestBody SendResetPasswordBody body) {
         try {
-            emailConfirmationService.sendResetPassword(body);
+            confirmationService.sendResetPassword(body);
             return ResponseEntity.status(HttpStatus.OK).body("Sent successfully");
         } catch (SendMsgFailureException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send");
@@ -186,7 +185,7 @@ public class UserController {
     @PutMapping(value = "confirmation")
     public ResponseEntity<String> confirmation(@RequestParam(name = "token") String token) {
         try {
-            emailConfirmationService.confirmEmail(token);
+            confirmationService.confirmEmail(token);
             return ResponseEntity.status(HttpStatus.OK).body("Email confirmed");
         } catch (TokenInvalidException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
@@ -200,7 +199,7 @@ public class UserController {
             @RequestParam(name = "token") String token,
             @RequestBody ResetPasswordBody body) {
         try {
-            emailConfirmationService.resetPassword(token, body);
+            confirmationService.resetPassword(token, body);
             return ResponseEntity.status(HttpStatus.OK).body("Password set successfully");
         } catch (TokenInvalidException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");

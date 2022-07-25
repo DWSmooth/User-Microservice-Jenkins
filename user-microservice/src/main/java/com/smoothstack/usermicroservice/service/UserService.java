@@ -1,9 +1,6 @@
 package com.smoothstack.usermicroservice.service;
 
-import com.smoothstack.common.exceptions.InsufficientInformationException;
-import com.smoothstack.common.exceptions.InsufficientPasswordException;
-import com.smoothstack.common.exceptions.UserNotFoundException;
-import com.smoothstack.common.exceptions.UsernameTakenException;
+import com.smoothstack.common.exceptions.*;
 import com.smoothstack.common.models.User;
 import com.smoothstack.common.models.UserInformation;
 import com.smoothstack.usermicroservice.data.UserInformationBuild;
@@ -11,6 +8,7 @@ import com.smoothstack.common.models.UserRole;
 import com.smoothstack.common.repositories.UserInformationRepository;
 import com.smoothstack.common.repositories.UserRepository;
 import com.smoothstack.common.services.CommonLibraryTestingService;
+import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +25,9 @@ public class UserService {
 
     @Autowired
     UserInformationRepository userInformationRepository;
+
+    @Autowired
+    ConfirmationService confirmationService;
 
     /**
      * Returns a boolean depending on whether there is a user in the database with said username
@@ -151,7 +152,16 @@ public class UserService {
         newUserInformation.setAccount_active(userInformationBuild.getAccount_active());
         newUser.setUserInformation(newUserInformation);
 
-        return userRepository.save(newUser).getId();
+        Integer userId = userRepository.save(newUser).getId();
+
+        try {
+            confirmationService.sendResetPassword(SendResetPasswordBody.builder().email(userInformationBuild.getEmail()).build());
+        } catch (SendMsgFailureException e) {
+            // TODO: Need some way to send a secondary error even though the main operation succeeded
+            System.err.println("UserController.createUserInformation(): succeeded but failed to send password reset!");
+        }
+
+        return userId;
     }
 
     /**
