@@ -1,0 +1,33 @@
+cloud:
+  aws:
+    pinpoint:
+      emailCharset: UTF-8
+      smsMsgType: TRANSACTIONAL
+
+eureka:
+  client:
+    enabled: true
+
+jwt:
+  key: app.key
+  pub: app.pub
+
+megabytes:
+  frontend:
+    confirmation: /user-service/confirmation
+    resetPassword: /user-service/resetPassword
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
