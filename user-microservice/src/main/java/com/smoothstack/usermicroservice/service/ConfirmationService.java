@@ -5,30 +5,32 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.smoothstack.common.exceptions.*;
 import com.smoothstack.common.models.*;
 import com.smoothstack.common.repositories.*;
+import com.smoothstack.common.data.ConfirmEmailToken;
+import com.smoothstack.common.data.ResetPasswordToken;
+import com.smoothstack.common.services.JwtService;
+import com.smoothstack.common.services.messaging.MessagingService;
 
-import com.smoothstack.usermicroservice.data.jwt.ConfirmEmailToken;
-import com.smoothstack.usermicroservice.data.jwt.ResetPasswordToken;
 import com.smoothstack.usermicroservice.data.rest.ResetPasswordBody;
 import com.smoothstack.usermicroservice.data.rest.SendConfirmEmailBody;
 import com.smoothstack.usermicroservice.data.rest.SendResetPasswordBody;
-import com.smoothstack.usermicroservice.service.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
 
 @Service
-public class EmailConfirmationService {
-    private static final Integer confirmEmailExpiryHours = 24 * 7;
-    private static final Integer resetPasswordExpiryHours = 24 * 1;
-    private static final String frontendConfirmationRoute = "/user/confirmation";
-    private static final String frontendResetPasswordRoute = "/user/resetPassword";
+public class ConfirmationService {
 
-    private String url;
+    static final Integer confirmEmailExpiryHours = 168;
+    static final Integer resetPasswordExpiryHours = 24;
+
+    String frontendConfirmationRoute;
+    String frontendResetPasswordRoute;
+    String frontendAddress;
 
     @Autowired
     UserRepository userRepo;
@@ -58,8 +60,10 @@ public class EmailConfirmationService {
     MessagingService msgService;
 
     @Autowired
-    public EmailConfirmationService(ConfigService config) {
-        this.url = config.getFrontendAddress();
+    public ConfirmationService(Environment env) {
+        frontendAddress = env.getProperty("megabytes.frontend.address");
+        frontendConfirmationRoute = env.getProperty("megabytes.frontend.confirmation");
+        frontendResetPasswordRoute = env.getProperty("megabytes.frontend.resetPassword");
     }
 
     public void sendConfirmEmail(SendConfirmEmailBody requestBody)
@@ -158,13 +162,7 @@ public class EmailConfirmationService {
     }
 
     public void confirmEmail(String token) throws UserNotFoundException, TokenInvalidException {
-        // Decode JWT
-        ConfirmEmailToken jwt;
-        try {
-            jwt = jwtService.validateConfirmEmailToken(token);
-        } catch (JWTVerificationException e) {
-            throw new TokenInvalidException();
-        }
+        ConfirmEmailToken jwt = new ConfirmEmailToken().decode(jwtService.getDecoder(), token);
 
         // Check if user exists
         Optional<User> userResult = userRepo.findById(jwt.getUserId());
@@ -184,12 +182,7 @@ public class EmailConfirmationService {
 
     public void resetPassword(String token, ResetPasswordBody body) throws MsgInvalidException, InsufficientPasswordException, TokenInvalidException {
         // Decode JWT
-        ResetPasswordToken jwt;
-        try {
-            jwt = jwtService.validateResetPasswordToken(token);
-        } catch (JWTVerificationException e) {
-            throw new TokenInvalidException();
-        }
+        ResetPasswordToken jwt = new ResetPasswordToken().decode(jwtService.getDecoder(), token);
 
         // Validate new password
         String password = body.getPassword();
@@ -230,24 +223,24 @@ public class EmailConfirmationService {
 
     // This link is served to the user and routes to a confirm email action.
     private String confirmEmailLink(String token) {
-        return this.url + frontendConfirmationRoute + "?token=" + token;
+        return this.frontendAddress + frontendConfirmationRoute + "?token=" + token;
     }
 
     // This link is served to the user and routes to a reset password action.
     private String resetPasswordLink(String token) {
-        return this.url + frontendResetPasswordRoute + "?token=" + token;
+        return this.frontendAddress + frontendResetPasswordRoute + "?token=" + token;
     }
 
     private String createConfirmEmailJwt(Integer userId) {
         Date expiry = addHoursToDate(new Date(), confirmEmailExpiryHours);
         ConfirmEmailToken token = new ConfirmEmailToken(userId, expiry);
-        return jwtService.generateToken(token);
+        return token.encode(jwtService.getEncoder());
     }
 
     private String createResetPasswordJwt(Integer userId, String confirmation) {
         Date expiry = addHoursToDate(new Date(), resetPasswordExpiryHours);
         ResetPasswordToken token = new ResetPasswordToken(userId, confirmation, expiry);
-        return jwtService.generateToken(token);
+        return token.encode(jwtService.getEncoder());
     }
 
     private Message createMsg(MessageType type, CommunicationMethod method, String confirmation) {

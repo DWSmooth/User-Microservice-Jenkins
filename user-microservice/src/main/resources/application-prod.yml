@@ -1,0 +1,26 @@
+cloud:
+  aws:
+    pinpoint:
+      appId: ${MEGABYTES_PINPOINT_APP_ID}
+      accessKeyId: ${MEGABYTES_PINPOINT_ACCESS_KEY_ID}
+      secretKey: ${MEGABYTES_PINPOINT_SECRET_KEY}
+      emailFrom: ${MEGABYTES_PINPOINT_EMAIL_FROM}
+      smsFrom: ${MEGABYTES_PINPOINT_SMS_FROM}
+      smsSenderId: ${MEGABYTES_PINPOINT_SMS_SENDER_ID}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${MEGABYTES_LOCAL_URL}:8761/eureka
+
+megabytes:
+  frontend:
+    address: ${MEGABYTES_FRONTEND_URL}
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MEGABYTES_DATASOURCE_URL}:3306/capstone
+    username: ${MEGABYTES_DB_USERNAME}
+    password: ${MEGABYTES_DB_PASSWORD}
+  jpa:
+    show-sql: true
