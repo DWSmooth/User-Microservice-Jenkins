@@ -3,8 +3,6 @@ pipeline {
     stages {
         stage("Install common libraries") {
             steps {
-                // Remove Common-Library folder if it's already there
-                bat 'rmdir \"Common-Library\" /S /Q'
                 // Clone the common library git repo
                 bat 'git clone https://github.com/april2022-j-capstone/common-library.git'
                 // Switch to the common library repo root
