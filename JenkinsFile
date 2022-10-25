@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    stages {
+        stage("Install common libraries") {
+            steps {
+                // Remove Common-Library folder if it's already there
+                bat 'rmdir \"Common-Library\" /S /Q'
+                // Clone the common library git repo
+                bat 'git clone https://github.com/april2022-j-capstone/common-library.git'
+                // Switch to the common library repo root
+                dir("Common-Library") {
+                    // Switch to common library dev branch
+                    bat 'git checkout dev'
+                    // Maven clean install
+                    bat 'mvn -X clean install'
+                }
+            }
+        }
+        stage("Build microservice") {
+            steps {
+                // Switch to the main repo package
+                dir("user-microservice") {
+                    // Maven clean package to produce jar
+                    bat 'mvn -X clean package'
+                    // Archive Jar before docker build
+                    archiveArtifacts artifacts: 'target/*.jar'
+                }
+            }
+        }
+        stage("Publish build to ECR") {
+            steps {
+                withAWS(credentials:'ECRCreds') {
+                    // Get ECR Password
+                    script {
+                        tempPswd = pwsh(
+                            returnStdout: true,
+                            script: 'aws ecr get-login-password --region us-east-1'
+                        )
+                    }
+                    // Log in to ECR
+                    pwsh("echo ${tempPswd} | docker login --username AWS --password-stdin 347673321751.dkr.ecr.us-east-1.amazonaws.com")
+                    // Make docker image and push to ECR
+                    pwsh script: 'docker build -t scrumbags-user .'
+                    // Tag docker image before pushing
+                    pwsh script: 'docker tag scrumbags-user:latest 347673321751.dkr.ecr.us-east-1.amazonaws.com/scrumbags-user:latest'
+                    // Push docker image to ECR
+                    pwsh script: 'docker push 347673321751.dkr.ecr.us-east-1.amazonaws.com/scrumbags-user:latest'
+                }
+            }
+        }
+    }
+    post {
+        always{ 
+            // Remove maven build dir
+            bat 'rmdir \"user-microservice\\target\" /S /Q'
+            // Remove Common-Library git directory
+            bat 'rmdir \"Common-Library\" /S /Q'
+        }
+    }
+}
